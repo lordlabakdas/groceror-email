@@ -64,3 +64,14 @@ def test_pushgateway_called_when_backend_is_pushgateway():
         mock_push.assert_called_once()
     finally:
         config.METRICS_BACKEND = original
+
+
+def test_pushgateway_exception_does_not_raise():
+    import config
+    original = config.METRICS_BACKEND
+    config.METRICS_BACKEND = "pushgateway"
+    try:
+        with patch("metrics.push_to_gateway", side_effect=Exception("connection failed")):
+            metrics.increment_sent("success")  # must not raise
+    finally:
+        config.METRICS_BACKEND = original
