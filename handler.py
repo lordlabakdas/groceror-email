@@ -1,4 +1,5 @@
 import logging
+import smtplib
 
 from pydantic import ValidationError
 
@@ -18,7 +19,7 @@ def process_message(raw: dict, mailer: Mailer) -> None:
 
     try:
         mailer.send(parsed.recipient, parsed.subject, parsed.body)
-    except Exception:
+    except smtplib.SMTPException:
         increment_sent("failure")
         increment_error("smtp")
         raise
