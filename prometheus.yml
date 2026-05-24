@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: groceror-email
+    static_configs:
+      - targets: ["groceror-email:8003"]
