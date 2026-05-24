@@ -19,7 +19,7 @@ def process_message(raw: dict, mailer: Mailer) -> None:
 
     try:
         mailer.send(parsed.recipient, parsed.subject, parsed.body)
-    except smtplib.SMTPException:
+    except (smtplib.SMTPException, OSError):
         increment_sent("failure")
         increment_error("smtp")
         raise

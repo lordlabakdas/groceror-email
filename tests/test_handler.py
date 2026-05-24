@@ -58,3 +58,13 @@ def test_smtp_failure_increments_sent_failure_and_smtp_error(mock_mailer):
             process_message(VALID_RAW, mock_mailer)
     mock_sent.assert_called_once_with("failure")
     mock_err.assert_called_once_with("smtp")
+
+
+def test_os_error_increments_sent_failure_and_smtp_error(mock_mailer):
+    mock_mailer.send.side_effect = OSError("connection refused")
+    with patch("handler.increment_sent") as mock_sent, \
+         patch("handler.increment_error") as mock_err:
+        with pytest.raises(OSError):
+            process_message(VALID_RAW, mock_mailer)
+    mock_sent.assert_called_once_with("failure")
+    mock_err.assert_called_once_with("smtp")
