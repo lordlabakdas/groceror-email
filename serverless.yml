@@ -1,0 +1,46 @@
+service: groceror-email
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: python3.12
+  region: ${opt:region, 'us-east-1'}
+  stage: ${opt:stage, 'prod'}
+  environment:
+    SMTP_HOST: ${ssm:/groceror/${self:provider.stage}/SMTP_HOST, ''}
+    SMTP_PORT: ${ssm:/groceror/${self:provider.stage}/SMTP_PORT, '587'}
+    SMTP_USER: ${ssm:/groceror/${self:provider.stage}/SMTP_USER, ''}
+    SMTP_PASS: ${ssm:/groceror/${self:provider.stage}/SMTP_PASS, ''}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - sqs:ReceiveMessage
+            - sqs:DeleteMessage
+            - sqs:GetQueueAttributes
+          Resource:
+            - ${cf:groceror-infra-${self:provider.stage}.EmailQueueArn}
+
+functions:
+  consumer:
+    handler: lambda_handler.handler
+    timeout: 60
+    memorySize: 256
+    events:
+      - sqs:
+          arn: ${cf:groceror-infra-${self:provider.stage}.EmailQueueArn}
+          batchSize: 10
+          functionResponseType: ReportBatchItemFailures
+
+package:
+  patterns:
+    - "!consumer.py"
+    - "!main.py"
+    - "!tests/**"
+    - "!grafana/**"
+    - "!prometheus.yml"
+    - "!docker-compose.yml"
+    - "!Dockerfile"
+    - "!requirements-dev.txt"
+    - "!README.md"
