@@ -30,15 +30,15 @@ def test_increment_error_calls_counter():
     mock_inc.assert_called_once()
 
 
-def test_set_consumer_status_up():
+def test_set_consumer_up_1():
     with patch.object(metrics.consumer_up, "set") as mock_set:
-        metrics.set_consumer_status(True)
+        metrics.set_consumer_up(1)
     mock_set.assert_called_once_with(1)
 
 
-def test_set_consumer_status_down():
+def test_set_consumer_up_0():
     with patch.object(metrics.consumer_up, "set") as mock_set:
-        metrics.set_consumer_status(False)
+        metrics.set_consumer_up(0)
     mock_set.assert_called_once_with(0)
 
 
